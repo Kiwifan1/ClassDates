@@ -7,14 +7,14 @@
 
 ## Installation
 
-- Clone this repository to your local machine using `git clone https://github.com/Kiwifan1/Quantified-Self.git` in your terminal.
+- Clone this repository to your local machine using `git clone https://github.com/Kiwifan1/ClassDates.git` in your terminal.
 - Make sure to have [These Dependencies](#dependencies) installed.
 
 ## Dependencies
 
 - This program requires the following dependencies to run:
-- [`python3`] (<https://www.python.org/downloads/>)
-- [`pandas`] (<https://pandas.pydata.org/>)
+- [python3] (<https://www.python.org/downloads/>)
+- [pandas] (<https://pandas.pydata.org/>)
 
 ## Usage
 
