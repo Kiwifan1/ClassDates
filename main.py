@@ -1,13 +1,12 @@
 # Name: Joshua Venable
 # Date: 12/26/2022
-# Description: After giving the student's id, this program will print the names of the classes the student is taking as well
-#   as the dates the classes are being held in a table.
+# Description: After giving the student's classes, and what days of the week they are held, this program will export the dates of the classes to a .csv file.
 # Notes:
 # v.1.0.0
 
-def main():
-    print("hello world!")
-
+import utils
 
 if __name__ == '__main__':
-    main()
+    class_ser = utils.get_student_classes()
+    class_dict = utils.get_student_class_days(class_ser)
+    utils.pretty_print(class_dict)
