@@ -159,7 +159,7 @@ def export_class_dates(class_dates: dict, filename: str = "class_dates.csv"):
         else:
             class_dates_df[class_] = dates  
 
-    class_dates_df.to_csv(filename, index_label="Date")
+    class_dates_df.to_csv(filename, index_label="Index")
     return
 
 
