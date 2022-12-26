@@ -7,6 +7,4 @@
 import utils
 
 if __name__ == '__main__':
-    class_ser = utils.get_student_classes()
-    class_dict = utils.get_student_class_days(class_ser)
-    utils.pretty_print(class_dict)
+    utils.main()

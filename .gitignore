@@ -1,2 +1,3 @@
 # ignore config files in the home directory
 *.properties
+*.csv
