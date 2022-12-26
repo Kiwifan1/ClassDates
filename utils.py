@@ -6,7 +6,8 @@
 
 import pandas as pd
 
-valid_days = ["M", "T", "W", "R", "F", "S", "U"]  # Valid days of the week
+valid_days = {"M": "Mon", "T": "Tue", "W": "Wed", "R": "Thu",
+              "F": "Fri", "S": "Sat", "U": "Sun"}  # Valid days of the week
 
 
 def main():
@@ -21,9 +22,11 @@ def main():
 
         correct_days = confirm_days()
 
-    export_to_csv(class_dict)
+    export_class_days(class_dict)
 
-    get_semester_start_end()
+    class_dates = get_dates_of_classes(class_dict)
+
+    export_class_dates(class_dates)
 
 
 def get_student_classes() -> pd.Series:
@@ -63,7 +66,7 @@ def get_student_class_days(classes: pd.Series) -> dict:
 
         # Check if all the days are valid
         while (not all(
-                day in valid_days for day in answer) and answer != "n" and answer != ""):
+                day in valid_days.keys() for day in answer) and answer != "n" and answer != ""):
             answer = input(
                 f"Invalid Input. Enter the days of the week that {class_} is held (n or hit enter to quit): ")
 
@@ -114,7 +117,7 @@ def confirm_days() -> bool:
     return False
 
 
-def export_to_csv(class_days: dict):
+def export_class_days(class_days: dict, filename: str = "class_days.csv"):
     """Export the class days to a csv file.
 
     Args:
@@ -122,15 +125,41 @@ def export_to_csv(class_days: dict):
     """
 
     class_days_df = pd.DataFrame(
-        index=valid_days, columns=class_days.keys(), dtype=bool)
+        index=valid_days.keys(), columns=class_days.keys(), dtype=str)
 
     # Check if the class is held on a day and set the value to True
     for (class_, days) in class_days.items():
-        class_days_df[class_] = False
+        class_days_df[class_] = ""
         for day in days:
-            class_days_df.loc[day, class_] = True
+            class_days_df.loc[day, class_] = "X"
 
-    class_days_df.to_csv("class_days.csv", index_label="Day")
+    class_days_df.to_csv(filename, index_label="Day")
+    return
+
+
+def export_class_dates(class_dates: dict, filename: str = "class_dates.csv"):
+    """Export the class dates to a csv file.
+
+    Args:
+        class_dates (dict): A dictionary of the student's classes and the dates that they are held.
+    """
+    # make a dataframe where the columns are the classes and the series are the dates
+
+    max_len = max(len(class_dates[class_]) for class_ in class_dates)
+
+    class_dates_df = pd.DataFrame(index=range(
+        max_len), columns=class_dates.keys(), dtype=str)
+
+    class_dates_df.fillna(pd.NA, inplace=True)
+    
+    for (class_, dates) in class_dates.items():
+        dates = [date.strftime("%m/%d/%Y") for date in dates]
+        if (len(dates) < len(class_dates_df)):
+            class_dates_df[class_] = dates + [""] * (len(class_dates_df) - len(dates))
+        else:
+            class_dates_df[class_] = dates  
+
+    class_dates_df.to_csv(filename, index_label="Date")
     return
 
 
@@ -149,7 +178,46 @@ def get_semester_start_end() -> tuple:
         start_date = pd.to_datetime(start_date)
         end_date = pd.to_datetime(end_date)
     except ValueError:
-        print(f"Invalid date: {start_date}" if pd.to_datetime("start_date", errors="coerce") is pd.NaT else f"Invalid date: {end_date}")
+        print(f"Invalid date: {start_date}" if pd.to_datetime(
+            "start_date", errors="coerce") is pd.NaT else f"Invalid date: {end_date}")
         return get_semester_start_end()
 
     return (start_date, end_date)
+
+
+def convert_days_to_weekmask(days: list) -> str:
+    """Convert the days of the week to a weekmask.
+
+    Args:
+        days (list): A list of the days of the week.
+
+    Returns:
+        str: A string of the days of the week in a weekmask format.
+    """
+    weekmask = ""
+    for day in days:
+        weekmask += valid_days[day] + " "
+    return weekmask.strip()
+
+
+def get_dates_of_classes(class_days: dict) -> dict:
+    """Get the dates of the student's classes.
+
+    Args:
+        class_days (dict): A dictionary of the student's classes and the days of the week that they are held.
+
+    Returns:
+        dict: A dictionary of the student's classes and the dates of the classes.
+    """
+    class_dates = {}
+
+    start_date, end_date = get_semester_start_end()
+
+    for (class_, days) in class_days.items():
+        weekmask = convert_days_to_weekmask(days)
+        class_date = pd.offsets.CustomBusinessDay(weekmask=weekmask)
+        dates = pd.date_range(start_date, end_date,
+                              freq=class_date, inclusive='both')
+        class_dates[class_] = dates
+
+    return class_dates
