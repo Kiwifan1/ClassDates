@@ -4,3 +4,10 @@
 #   as the dates the classes are being held in a table.
 # Notes:
 # v.1.0.0
+
+def main():
+    print("hello world!")
+
+
+if __name__ == '__main__':
+    main()
